@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Customer{
     id:string,
@@ -10,6 +10,8 @@ interface Customer{
 
 
 const Customer:React.FC=()=>{
+
+    const [customers,setCustomers]=useState<Customer[]>([]);
 
     const [name,setName]=useState('');
     const [address,setAddress]=useState('');
@@ -30,6 +32,17 @@ const Customer:React.FC=()=>{
             console.log(e);
         }
 
+
+    }
+
+    useEffect(()=>{
+            findAllCustomers();
+    },[])
+
+    const findAllCustomers=async ()=>{
+
+        const response=await axios.get('http://localhost:3000/api/v1/customers/findAll');
+        console.log(response);
 
     }
 
