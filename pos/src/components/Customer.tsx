@@ -1,8 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Modal } from "react-bootstrap";
+
+
 
 interface Customer{
-    id:string,
+    _id:string,
     name:string,
     address:string,
     salary:number
@@ -16,6 +19,43 @@ const Customer:React.FC=()=>{
     const [name,setName]=useState('');
     const [address,setAddress]=useState('');
     const [salary,setSalary]=useState<number | ''>('');
+
+    const [modalState,setModalState]=useState<boolean>(false);
+    const [updateName,setUpdateName]=useState('');
+    const [updateAddress,setUpdateAddress]=useState('');
+    const [updateSalary,setUpdateSalary]=useState<number | ''>('');
+    const [selectedCustomerId,setSelectedCustomerId]=useState('');
+
+    useEffect(()=>{
+            findAllCustomers()
+    },[])
+
+    const updateCustomer= async ()=>{
+        try{
+
+            await axios.put('http://localhost:3000/api/v1/customers/update/'+selectedCustomerId,{
+                name:updateName,address:updateAddress,salary:updateSalary
+            });
+            setModalState(false);
+            findAllCustomers();
+
+        }catch (e){
+            console.log(e)
+        }
+    }
+
+    const findAllCustomers= async ()=>{
+
+        const response= await axios.get('http://localhost:3000/api/v1/customers/findAll?searchText=&page=1&size=10');
+        setCustomers(response.data);
+        console.log(customers);
+    }
+
+   const deleteCustomer=async (id)=>{
+            const response= await axios.delete('http://localhost:3000/api/v1/customers/deleteById/'+id);
+            console.log(response)
+            
+   }
 
     const saveCustomer=async ()=>{
         
@@ -35,14 +75,15 @@ const Customer:React.FC=()=>{
 
     }
 
-    useEffect(()=>{
-            findAllCustomers();
-    },[])
+    const loadModal=async(id)=>{
 
-    const findAllCustomers=async ()=>{
-
-        const response=await axios.get('http://localhost:3000/api/v1/customers/findAll');
-        console.log(response);
+        const customer= await axios.get('http://localhost:3000/api/v1/customers/findById/'+id);
+        console.log(customer);
+        setModalState(true);
+        setSelectedCustomerId(customer.data._id)
+        setUpdateName(customer.data.name)
+        setUpdateAddress(customer.data.address)
+        setUpdateSalary(parseFloat(customer.data.salary))
 
     }
 
@@ -98,24 +139,83 @@ const Customer:React.FC=()=>{
                             </tr>
                         </thead>
                         <tbody>
-                                <tr>
-                                    <td>#10029</td>
-                                    <td>Ravindu</td>
-                                    <td>kundasale</td>
-                                    <td>25000</td>
+
+                                {customers.map((customer,index)=>
+                                
+                                <tr key={index}>
+                                    <td>#{index}</td>
+                                    <td>{customer.name}</td>
+                                    <td>{customer.address}</td>
+                                    <td>{customer.salary}</td>
                                     <td>
-                                        <button className="btn btn-outline-danger btn-sm">Delete</button>
+                                        <button
+                                            onClick={()=>{
+                                               if(confirm('are you sure??')){
+                                                deleteCustomer(customer._id);
+                                               }
+                                            }}
+                                        className="btn btn-outline-danger btn-sm">Delete</button>
                                     
                                     </td>
                                     <td>
-                                    <button className="btn btn-outline-success btn-sm">Update</button>
+                                    <button onClick={()=>{
+                                        loadModal(customer._id);
+                                    }
+
+                                    } className="btn btn-outline-success btn-sm">Update</button>
                                     </td>
                                 </tr>
+                                
+                                )}
+
+                              
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+        <Modal show={modalState}>
+        <div className='p-4'>
+                    <h2>Update Customer</h2>
+                    <hr/>
+
+                    <div className="col-12">
+                        <div className="form-group">
+                            <input type="text" defaultValue={updateName}
+                                   onChange={(e)=>setUpdateName(e.target.value)}
+                                   className='form-control'/>
+                        </div>
+                        <br/>
+                    </div>
+                    <div className="col-12">
+                        <div className="form-group">
+                            <input
+                                onChange={(e)=>setUpdateAddress(e.target.value)}
+                                type="text" defaultValue={updateAddress} className='form-control'/>
+                        </div>
+                        <br/>
+                    </div>
+                    <div className="col-12">
+                    <div className="form-group">
+                            <input
+                                onChange={(e)=>setUpdateSalary(e.atarget.value)}
+                                type="text" defaultValue={updateSalary} className='form-control'/>
+                        </div>
+                        <br/>
+                    </div>
+                    <div className="col-12">
+                        <button type='button' className='btn-success btn col-12'
+                        onClick={()=>updateCustomer()}
+                        >Update Customer</button>
+                        <br/>
+                        <br/>
+                        <button type='button' className='btn-secondary btn col-12' onClick={()=>setModalState(false)}>Close Modal</button>
+                    </div>
+
+                </div>
+
+        </Modal>
         
         </>
     )

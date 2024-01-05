@@ -1,5 +1,17 @@
 
 
+interface Product{
+
+    name:string,
+    description:string,
+    image:string,
+    unitPrice:number,
+    qtyOnHand:number
+
+
+}
+
+
 
 function Product(){
 
