@@ -2,8 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 
-
-
 interface Customer{
     _id:string,
     name:string,
@@ -33,7 +31,7 @@ const Customer:React.FC=()=>{
     const updateCustomer= async ()=>{
         try{
 
-            await axios.put('http://localhost:3000/api/v1/customers/update/'+selectedCustomerId,{
+            await AxiosInstance.put('/customers/update/'+selectedCustomerId,{
                 name:updateName,address:updateAddress,salary:updateSalary
             });
             setModalState(false);
@@ -53,8 +51,7 @@ const Customer:React.FC=()=>{
 
    const deleteCustomer=async (id)=>{
             const response= await axios.delete('http://localhost:3000/api/v1/customers/deleteById/'+id);
-            console.log(response)
-            
+           
    }
 
     const saveCustomer=async ()=>{
@@ -79,12 +76,13 @@ const Customer:React.FC=()=>{
 
         const customer= await axios.get('http://localhost:3000/api/v1/customers/findById/'+id);
         console.log(customer);
-        setModalState(true);
+        
         setSelectedCustomerId(customer.data._id)
         setUpdateName(customer.data.name)
         setUpdateAddress(customer.data.address)
         setUpdateSalary(parseFloat(customer.data.salary))
 
+        setModalState(true);
     }
 
     return (
@@ -197,9 +195,9 @@ const Customer:React.FC=()=>{
                         <br/>
                     </div>
                     <div className="col-12">
-                    <div className="form-group">
+                        <div className="form-group">
                             <input
-                                onChange={(e)=>setUpdateSalary(e.atarget.value)}
+                                onChange={(e)=>setUpdateSalary(parseFloat(e.target.value))}
                                 type="text" defaultValue={updateSalary} className='form-control'/>
                         </div>
                         <br/>

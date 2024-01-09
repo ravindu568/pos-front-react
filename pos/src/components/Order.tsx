@@ -1,6 +1,19 @@
 import React from "react";
 
-function Order() {
+interface Order{
+    _id:string,
+    date:Date,
+   
+
+
+    
+}
+
+const Order:React.FC=()=>{
+
+
+
+
     const styleObj:React.CSSProperties={
         marginBottom:'20px'
     }

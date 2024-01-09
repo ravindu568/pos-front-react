@@ -1,3 +1,5 @@
+import { ChangeEvent, useState } from "react";
+import { storage } from "../config/firebase";
 
 
 interface Product{
@@ -13,7 +15,38 @@ interface Product{
 
 
 
-function Product(){
+const Product:React.FC=()=>{
+
+
+    const [products,setProducts]=useState<Product[]>([]);
+
+    const [name,setName]=useState('');
+    const [description,setDescription]=useState('');
+    const [image,setimage]=useState<File | null>(null);
+    const [unitPrice,setunitPrice]=useState<number|''>('');
+    const [qtyOnHand,setqtyOnHand]=useState<number|''>('');
+
+
+    const handleImage=(e:ChangeEvent<HTMLInputElement>)=>{
+        if(e.target.files && e.target.files[0]){
+            setimage(e.target.files[0]);
+        }
+    }
+
+
+    const saveProduct=()=>{
+        if(image){
+            const storageRef=storage.ref(`images/${Math.random()+'-'+image.name}`);
+            storageRef.put(image).then(()=>{
+                storageRef.getDownloadURL().then((url)=>{
+                    console.log(url);
+                });
+            })
+        }
+    }
+
+
+
 
     const styleObj:React.CSSProperties={
         marginBottom:'20px'
@@ -27,32 +60,40 @@ function Product(){
                 <div className="col-12 col-sm-6 col-md-4" style={styleObj}>
                     <div className="form-group">
                         <label htmlFor="productName">Product Name</label>
-                        <input type="text" className="form-control" id="productName" />
+                        <input type="text" onChange={(e)=>{
+                            setName(e.target.value);
+                        }} className="form-control" id="productName" />
                     </div>
                 </div>
                 <div className="col-12 col-sm-6 col-md-4" style={styleObj}>
 
                          <label htmlFor="price">Unit Price </label>
-                        <input type="number" className="form-control" id="price" />
+                        <input type="number" onChange={(e)=>{
+                            setunitPrice(parseFloat(e.target.value));
+                        }} className="form-control" id="price" />
                 </div>
                 <div className="col-12 col-sm-6 col-md-4" style={styleObj}>
 
                         <label htmlFor="qty">QTY on Hand</label>
-                        <input type="number" className="form-control" id="qty" />
+                        <input type="number" onChange={(e)=>{
+                            setqtyOnHand(parseFloat(e.target.value));
+                        }} className="form-control" id="qty" />
                 </div>
 
                 <div className="col-12 col-sm-6 col-md-4" style={styleObj}>
 
                         <div className="form-group">
                             <label htmlFor="image" >Product Image</label>
-                            <input type="file" className="form-control" id="image" />
+                            <input type="file" onChange={handleImage} className="form-control" id="image" />
                         </div>
                 
                 </div>
             
                 <div className="col-12" style={styleObj}>
                             <label htmlFor="desc">Description</label>
-                            <textarea rows={2} className="form-control" id="desc" />
+                            <textarea rows={2} onChange={(e)=>{
+                                setDescription(e.target.value);
+                            }} className="form-control" id="desc" />
                 </div>
 
                 
